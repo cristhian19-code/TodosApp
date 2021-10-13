@@ -1,22 +1,21 @@
 <template>
 <Dialog header="Todo" v-model:visible="display" :style="{width: '50vw'}" :modal="true">
-    <InputText type="text" v-model="todo" :style="{width: '100%'}" placeholder="Insert name todo"/>
-
+    <InputText class="mt-3" type="text" v-model="todo" :style="{width: '100%'}" placeholder="Insert name todo" autofocus/>
     <template #footer>
     <button 
         @click="()=>{
             AddTodo({
-                title: todo,
-                completed: false
+                name: todo,
             });
             display = false;
             todo = '';
-        }" 
-        class="btn btn-secondary" 
+        }"
+        :class="todo.length<4?'disabled':''"
+        class="btn btn-primary" 
         :style="{'border-radius': '3px'}">
-        Agregar
+        Add
     </button>
-    <button @click="display = !display" class="btn btn-danger" :style="{'border-radius': '3px'}">Cerrar</button>
+    <button @click="display = !display" class="btn btn-text-danger" :style="{'border-radius': '3px'}">Cancel</button>
     </template>
 </Dialog>
 </template>
@@ -32,12 +31,16 @@ export default {
         Dialog,
         InputText,
     },
+    data() {
+        return {
+            todo: ''
+        }
+    },
     setup() {
         const display = inject('display');
 
         return {
             display,
-            todo: '',
         }
     },
     methods: {

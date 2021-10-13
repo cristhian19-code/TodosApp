@@ -8,7 +8,7 @@ import "primevue/resources/primevue.min.css";
 import "primeicons/primeicons.css";
 import PrimeVue from 'primevue/config';
 
-store.dispatch('SetTodos',JSON.parse(localStorage.getItem('todos')));
+store.dispatch('getUser',JSON.parse(localStorage.getItem('user')) || null);
 store.dispatch('DarkMode',JSON.parse(localStorage.getItem('darkmode')) || false);
 
 createApp(App).use(PrimeVue,{ripple: true}).use(store).use(router).mount('#app')

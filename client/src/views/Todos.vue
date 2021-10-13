@@ -1,5 +1,5 @@
 <template>
-  <div class="home">
+  <div class="todos">
     <div 
       :style="
         darkmode 
@@ -9,13 +9,19 @@
       class="img-todo"
     >
       <div class="navbar fixed-top p-4 d-flex justify-content-between align-items-center">
-        <h1 class="text-white">Todos App</h1>
-        <button v-if="darkmode" @click="DarkMode(!darkmode)" class="btn text-white">
-          <i class="fas fa-sun"></i>
-        </button>
-        <button v-else @click="DarkMode(!darkmode)" class="btn text-white">
-          <i class="fas fa-moon"></i>
-        </button>
+        <h1 class="text-white">{{user.name}}</h1>
+        <div>
+          <button v-if="darkmode" @click="DarkMode(!darkmode)" class="btn text-white">
+            <i class="fas fa-sun"></i>
+          </button>
+          <button v-else @click="DarkMode(!darkmode)" class="btn text-white">
+            <i class="fas fa-moon"></i>
+          </button>
+
+          <button @click="Logout()" class="btn text-white">
+            <i class="fas fa-sign-out-alt"></i>
+          </button>
+        </div>
       </div>
     </div>
     <div class="container-fluid py-5">
@@ -33,22 +39,22 @@
 
         <div class="card rounded-bottom-y bg-secondary d-flex flex-row justify-content-between align-items-center px-3">
           <div>
-            <p class="text-muted my-0">{{todos ? todos.filter((todo) => todo.completed).length:0}} elements completed</p>
+            <p v-if="todos" class="text-muted my-0">{{todos.filter((todo) => todo.completed).length}} elements completed</p>
           </div>
           <div class="d-flex justify-content-center" v-if="windowWidth>1000">
             <button @click="Filter('all')" class="btn btn-secondary text-white">All</button>
             <button @click="Filter('completed')" class="btn btn-secondary text-white">Completed</button>
-            <button @click="Filter('active')" class="btn btn-secondary text-white">Active</button>
+            <button @click="Filter('active')" class="btn btn-secondary text-white">Not Completed</button>
           </div>
           <div>
-            <button @click="CleanAll()" class="btn btn-secondary text-white">Clear Completed</button>
+            <button @click="CleanAll()" class="btn btn-secondary text-white">Clear All</button>
           </div>
         </div>
 
         <div v-if="windowWidth<=1000" class="card mt-3 d-flex flex-row justify-content-center bg-secondary rounded-x-y">
           <button @click="Filter('all')" class="btn btn-secondary text-white">All</button>
           <button @click="Filter('completed')" class="btn btn-secondary text-white">Completed</button>
-          <button @click="Filter('active')" class="btn btn-secondary text-white">Active</button>
+          <button @click="Filter('active')" class="btn btn-secondary text-white">Not Completed</button>
         </div>
       </div>
       <DialogVue />
@@ -62,40 +68,50 @@ import TodoVue from '../components/Todo.vue';
 import {mapState,mapActions} from 'vuex'
 import DialogVue from '../components/Dialog.vue';
 import { ref,provide } from 'vue';
-
+import route from '../router'
 export default {
   name: 'Home',
   components:{
     TodoVue,
     DialogVue
   },
-  setup() {
-    const display = ref(false);
-    provide('display',display);
-    
+  data() {
     return {
-      display,
       windowWidth: window.innerWidth
     }
   },
+  setup() {
+    const display = ref(false);
+    provide('display',display);
+    return {
+      display,
+    }
+  },
   computed: {
-    ...mapState(['todos','darkmode'])
+    ...mapState(['todos','darkmode','user'])
   },
   methods: {
-    ...mapActions(['CleanAll','Filter','DarkMode'])
+    ...mapActions(['CleanAll','Filter','DarkMode','SetTodos','Logout'])
   },
   mounted() {
       window.onresize = () => {
           this.windowWidth = window.innerWidth
       }
-  }
+  },
+  created() {
+    if(this.user.token == ''){
+      route.push('/')
+    }else{
+      this.SetTodos(this.user.token)
+    }
+  },
 }
 </script>
 <style scoped>
 .img-todo{
   background-size: cover;
   background-attachment: fixed;
-  background-position: center center;
+  background-position: center bottom;
   background-repeat: no-repeat;
   transition: .5s ease-out;
   height: 60vh;
@@ -138,7 +154,7 @@ export default {
   margin-top: -15rem;
 }
 
-.fa-sun,.fa-moon{
+.fa-sun,.fa-moon,.fa-sign-out-alt{
   font-size: 25px;
 }
 
